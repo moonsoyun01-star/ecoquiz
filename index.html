@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>생태 & 환경 퀴즈 — 10문항</title>
+<style>
+  :root{
+    --bg1: #0f172a;
+    --accent1: #72efdd;
+    --accent2: #7aa7ff;
+    --glass: rgba(255,255,255,0.06);
+    --glass-2: rgba(255,255,255,0.04);
+    --card-radius: 18px;
+    --shadow: 0 10px 30px rgba(2,6,23,0.6);
+    --success: #5eead4;
+    --danger: #ff7ab6;
+    --muted: rgba(255,255,255,0.7);
+    font-family: Inter, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    background: radial-gradient(1200px 500px at 10% 10%, rgba(122,167,255,0.12), transparent),
+                radial-gradient(900px 400px at 90% 90%, rgba(114,239,221,0.08), transparent),
+                linear-gradient(180deg,#071029 0%, #07183a 50%, #0b1730 100%);
+    color: #e6eef8;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* Full-bleed container */
+  .app {
+    min-height:100vh;
+    display:grid;
+    place-items:center;
+    padding:32px;
+    box-sizing:border-box;
+  }
+
+  .shell {
+    width:100%;
+    max-width:1100px;
+    height: calc(100vh - 64px);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius: calc(var(--card-radius) + 6px);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    box-sizing:border-box;
+    display:grid;
+    grid-template-columns: 1fr 420px;
+    gap:20px;
+    overflow:hidden;
+  }
+
+  /* Left: quiz area */
+  .quiz-area{
+    padding: 28px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius: 14px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    min-width:0;
+  }
+
+  .header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+  }
+
+  .title {
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+
+  .logo {
+    width:56px;
+    height:56px;
+    border-radius:12px;
+    background: linear-gradient(135deg,var(--accent1), var(--accent2));
+    display:grid;
+    place-items:center;
+    font-weight:700;
+    color:#021022;
+    box-shadow: 0 6px 18px rgba(122,167,255,0.08), inset 0 -6px 18px rgba(0,0,0,0.15);
+    font-family: "Segoe UI", Roboto, sans-serif;
+  }
+
+  .title h1{
+    margin:0;
+    font-size:18px;
+    letter-spacing:-0.2px;
+  }
+  .title p{ margin:0; font-size:13px; color:var(--muted); }
+
+  .controls { display:flex; gap:10px; align-items:center; }
+
+  .btn {
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.06);
+    padding:10px 14px;
+    border-radius:12px;
+    color:var(--muted);
+    font-weight:600;
+    cursor:pointer;
+    transition: all .18s ease;
+    backdrop-filter: blur(6px);
+  }
+  .btn:hover{ transform: translateY(-3px); box-shadow: 0 10px 26px rgba(2,6,23,0.45); color:#fff; }
+  .btn.primary {
+    border: none;
+    background: linear-gradient(90deg,var(--accent1),var(--accent2));
+    color:#021022;
+    box-shadow: 0 8px 30px rgba(122,167,255,0.12);
+  }
+
+  .progress-wrap {
+    width:100%;
+    height:14px;
+    background: var(--glass-2);
+    border-radius: 999px;
+    overflow:hidden;
+  }
+  .progress {
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg,var(--accent2), var(--accent1));
+    transition: width .45s cubic-bezier(.2,.9,.3,1);
+  }
+
+  .question-card {
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    min-height:0;
+    justify-content:center;
+    align-items:stretch;
+  }
+
+  .q-meta { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .q-number { font-size:13px; color:var(--muted); }
+  .q-text { font-size:22px; font-weight:700; line-height:1.18; }
+
+  .options {
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+  }
+  .option {
+    background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+    border-radius:12px;
+    padding:14px;
+    cursor:pointer;
+    border:1px solid rgba(255,255,255,0.04);
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  .option:hover{ transform: translateY(-6px); box-shadow: 0 16px 30px rgba(2,6,23,0.6); }
+  .option .letter {
+    min-width:36px;
+    height:36px;
+    border-radius:10px;
+    display:grid;
+    place-items:center;
+    font-weight:800;
+    color:#021022;
+    background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85));
+    opacity:0.95;
+    font-family:monospace;
+  }
+  .option .text { font-weight:700; color:#e6eef8; }
+
+  .option.disabled{ opacity:0.6; cursor:default; transform:none; box-shadow:none; }
+  .option.correct{ border-color: rgba(94,234,212,0.95); box-shadow: 0 8px 24px rgba(94,234,212,0.06); }
+  .option.wrong{ border-color: rgba(255,122,182,0.9); box-shadow: 0 8px 24px rgba(255,122,182,0.06); opacity:0.9; }
+
+  .explain {
+    padding:12px 14px;
+    border-radius:12px;
+    background: rgba(0,0,0,0.18);
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  /* Right: sidebar */
+  .sidebar {
+    padding:22px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+    min-width:0;
+    align-items:stretch;
+  }
+
+  .score {
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .score .big {
+    font-size:34px;
+    font-weight:800;
+    letter-spacing:-1px;
+    color:var(--accent1);
+  }
+  .mini {
+    font-size:13px;
+    color:var(--muted);
+  }
+
+  .stat {
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px;
+    border-radius:12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+    border:1px solid rgba(255,255,255,0.03);
+  }
+
+  .q-list {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .q-chip {
+    min-width:36px;
+    height:36px;
+    display:grid;
+    place-items:center;
+    border-radius:10px;
+    font-weight:700;
+    background: rgba(255,255,255,0.03);
+    color:var(--muted);
+    cursor:pointer;
+  }
+  .q-chip.answered { background: linear-gradient(90deg,var(--accent1),var(--accent2)); color:#021022; }
+
+  .footer {
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    align-items:center;
+    margin-top:auto;
+  }
+
+  .small { font-size:12px; color:var(--muted); }
+
+  /* end screen */
+  .end-screen {
+    position:absolute;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:40;
+  }
+  .end-card {
+    width:90%;
+    max-width:760px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:18px;
+    padding:26px;
+    box-shadow: var(--shadow);
+    text-align:center;
+  }
+  .end-card h2{ margin:0 0 8px 0; font-size:28px; }
+  .end-card p { margin:0 0 18px 0; color:var(--muted); }
+
+  /* confetti (simple) */
+  .celebrate {
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    z-index:50;
+  }
+  .confetti {
+    position:absolute;
+    width:10px;
+    height:14px;
+    opacity:0;
+    transform-origin:center;
+    animation:floatUp 1400ms linear forwards;
+  }
+  @keyframes floatUp {
+    0%{ transform: translateY(0) rotate(0) scale(1); opacity:1; }
+    100%{ transform: translateY(-420px) rotate(360deg) scale(.6); opacity:0; }
+  }
+
+  /* responsive */
+  @media (max-width:980px){
+    .shell { grid-template-columns: 1fr; height:auto; padding:18px; gap:14px; }
+    .sidebar { order:2; }
+  }
+  @media (max-width:520px){
+    .options { grid-template-columns: 1fr; }
+    .logo{ width:48px;height:48px;font-size:14px; }
+    .q-text{ font-size:20px; }
+    .title h1{ font-size:16px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="shell" role="application" aria-label="생태 환경 퀴즈 앱">
+    <main class="quiz-area" id="quizArea">
+      <div class="header">
+        <div class="title">
+          <div class="logo">E🌿</div>
+          <div>
+            <h1>생태 & 환경 퀴즈</h1>
+            <p>10문항 — 재미있게 풀고 지구를 더 알아가요 🌎</p>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="small">남은시간</div>
+          <div id="timer" class="btn" style="min-width:72px;">--:--</div>
+          <button class="btn" id="restartBtn" title="처음부터">다시하기</button>
+        </div>
+      </div>
+
+      <div class="progress-wrap" aria-hidden="true">
+        <div id="prog" class="progress" style="width:0%"></div>
+      </div>
+
+      <section class="question-card" id="questionCard" aria-live="polite">
+        <!-- question content injected by JS -->
+      </section>
+
+      <div class="footer">
+        <div class="small">키보드: 숫자키(1-4)로 선택, ← →로 이동</div>
+        <div>
+          <button class="btn" id="prevBtn" aria-label="이전 문제">이전</button>
+          <button class="btn primary" id="nextBtn" aria-label="다음 문제">다음</button>
+        </div>
+      </div>
+    </main>
+
+    <aside class="sidebar" aria-label="진행 정보">
+      <div class="score">
+        <div>
+          <div class="mini">점수</div>
+          <div class="big" id="score">0</div>
+        </div>
+        <div style="text-align:right">
+          <div class="mini">정답률</div>
+          <div class="big" id="pct">0%</div>
+        </div>
+      </div>
+
+      <div class="stat">
+        <div>
+          <div class="mini">문제</div>
+          <div style="font-weight:800">총 10문항</div>
+        </div>
+        <div>
+          <div class="mini">현재</div>
+          <div id="currentIdx" style="font-weight:800">1 / 10</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="mini" style="margin-bottom:8px">문제 목록</div>
+        <div class="q-list" id="qList" role="tablist" aria-label="문제 목록">
+          <!-- chips -->
+        </div>
+      </div>
+
+      <div style="margin-top:auto;">
+        <div class="mini">퀴즈을 마치면 설명(해설)이 제공됩니다.</div>
+      </div>
+    </aside>
+
+    <!-- end overlay -->
+    <div class="end-screen" id="endScreen" role="dialog" aria-modal="true">
+      <div class="end-card" id="endCard">
+        <h2 id="endTitle">축하합니다!</h2>
+        <p id="endText">퀴즈를 완료했습니다. 결과를 확인하세요.</p>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;">
+          <button class="btn" id="reviewBtn">정답 확인</button>
+          <button class="btn primary" id="retakeBtn">다시 풀기</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- confetti container -->
+    <div class="celebrate" id="celebrate"></div>
+  </div>
+</div>
+
+<script>
+/* Quiz data — 10 questions about ecology & environment (Korean) */
+const QUIZ = [
+  {
+    q: "지구 온난화의 원인이면서 온실효과를 일으키는 주된 기체는 무엇인가요?",
+    opts: ["산소 (O₂)", "이산화탄소 (CO₂)", "질소 (N₂)", "아르곤 (Ar)"],
+    a: 1,
+    explain: "이산화탄소(CO₂)는 화석연료 연소 등으로 대기 중 농도가 증가하여 온실효과를 강화합니다."
+  },
+  {
+    q: "바닷물의 과도한 영양염류(질소·인) 유입으로 인해 일어나는 현상은?",
+    opts: ["사막화", "부영양화 (Eutrophication)", "빙하형성", "산사태"],
+    a: 1,
+    explain: "영양염류가 늘면 플랑크톤 대증식 → 산소 고갈 → 어패류 피해 등이 일어납니다."
+  },
+  {
+    q: "생물다양성(biodiversity)에 포함되지 않는 요소는 무엇일까요?",
+    opts: ["유전적 다양성", "생태계 다양성", "문화적 다양성", "종(종류) 다양성"],
+    a: 2,
+    explain: "생물다양성은 유전적 다양성, 종 다양성, 생태계 다양성 등을 말합니다. 문화적 다양성은 포함되지 않습니다."
+  },
+  {
+    q: "다음 중 탄소 흡수원(carbon sink)에 해당하는 것은?",
+    opts: ["산업 공장", "삼림(숲)", "자동차", "화력발전소"],
+    a: 1,
+    explain: "나무와 토양은 대기 중 CO₂를 흡수해 저장하므로 중요한 탄소 흡수원입니다."
+  },
+  {
+    q: "재사용(reuse), 감량(reduce), 재활용(recycle)의 '3R' 원칙에서 '감량'이 의미하는 것은?",
+    opts: ["쓰레기를 더 많이 만들기", "물건의 구매·사용을 줄여 폐기물을 줄이기", "모든 것을 재활용 처리하기", "쓰레기를 소각하기"],
+    a: 1,
+    explain: "'감량'은 제품 사용·구입 자체를 줄여 쓰레기를 처음부터 줄이는 것을 뜻합니다."
+  },
+  {
+    q: "외래 종(invasive species)이 토착 생태계에 주로 미치는 영향은?",
+    opts: ["서로 공존하며 생물다양성 증가", "토착종을 밀어내어 생태계 교란", "토양 비옥도를 무조건 높임", "기후를 안정화함"],
+    a: 1,
+    explain: "외래종은 경쟁·포식 등을 통해 토착종을 위협하고 생태계를 불균형하게 만듭니다."
+  },
+  {
+    q: "해양 플라스틱 쓰레기가 미치는 대표적 문제로 옳지 않은 것은?",
+    opts: ["해양생물의 섭식과 질식", "미세플라스틱을 통한 식품계의 오염", "바닷물의 염도 급격 증가", "서식지 파괴"],
+    a: 2,
+    explain: "플라스틱은 서식지 파괴·섭식·미세플라스틱 오염을 유발하지만, 바닷물 염도가 급격히 증가시키지는 않습니다."
+  },
+  {
+    q: "생태계에서 생산자(producer)에 해당하는 것은?",
+    opts: ["초식동물", "육식동물", "식물(광합성을 하는 생물)", "분해자(미생물)"],
+    a: 2,
+    explain: "생산자는 태양에너지를 이용해 유기물을 만드는 생물(예: 식물)입니다."
+  },
+  {
+    q: "컴포스트(퇴비)를 만들 때 크게 중요하지 않은 요소는 무엇일까요?",
+    opts: ["적절한 수분", "탄소와 질소의 비율", "산소 공급(통기)", "전기 공급"],
+    a: 3,
+    explain: "퇴비화는 유기물 분해과정으로 전기 공급이 필요하지 않으며, 수분·C/N비·통기가 중요합니다."
+  },
+  {
+    q: "재생가능에너지(renewable energy)에 해당하지 않는 것은?",
+    opts: ["태양광 에너지", "풍력 에너지", "석탄", "지열 에너지"],
+    a: 2,
+    explain: "석탄은 화석연료로 재생 불가능한 에너지입니다."
+  }
+];
+
+/* state */
+let state = {
+  idx: 0,
+  answers: Array(QUIZ.length).fill(null),
+  score: 0,
+  timeLeft: 8 * 60 // total quiz time seconds (optional) — 8 minutes
+};
+
+/* DOM refs */
+const questionCard = document.getElementById('questionCard');
+const prog = document.getElementById('prog');
+const scoreEl = document.getElementById('score');
+const pctEl = document.getElementById('pct');
+const currIdxEl = document.getElementById('currentIdx');
+const qList = document.getElementById('qList');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const restartBtn = document.getElementById('restartBtn');
+const endScreen = document.getElementById('endScreen');
+const endTitle = document.getElementById('endTitle');
+const endText = document.getElementById('endText');
+const reviewBtn = document.getElementById('reviewBtn');
+const retakeBtn = document.getElementById('retakeBtn');
+const celebrate = document.getElementById('celebrate');
+const timerEl = document.getElementById('timer');
+
+/* helpers */
+function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+function formatTime(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = (sec%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+/* initialize question chips */
+function initQChips(){
+  qList.innerHTML = '';
+  QUIZ.forEach((q,i)=>{
+    const chip = document.createElement('button');
+    chip.className = 'q-chip';
+    chip.textContent = i+1;
+    chip.setAttribute('aria-label', `문제 ${i+1}로 이동`);
+    chip.addEventListener('click', ()=> {
+      goTo(i);
+    });
+    qList.appendChild(chip);
+  });
+}
+
+/* render UI for current question */
+function render(){
+  const i = state.idx;
+  const data = QUIZ[i];
+  // progress
+  const percent = Math.round((i/(QUIZ.length))*100);
+  prog.style.width = `${(i+1)/QUIZ.length*100}%`;
+  currIdxEl.textContent = `${i+1} / ${QUIZ.length}`;
+
+  // score
+  scoreEl.textContent = state.score;
+  const pct = Math.round((state.score / QUIZ.length) * 100);
+  pctEl.textContent = pct + '%';
+
+  // chips answered
+  Array.from(qList.children).forEach((chip, idx)=>{
+    chip.classList.toggle('answered', state.answers[idx] !== null);
+  });
+
+  // build question area
+  questionCard.innerHTML = '';
+  const meta = document.createElement('div');
+  meta.className = 'q-meta';
+  meta.innerHTML = `<div class="q-number">문제 ${i+1}</div><div class="q-number small">난이도: 쉬움</div>`;
+  const qtext = document.createElement('div');
+  qtext.className = 'q-text';
+  qtext.textContent = data.q;
+
+  const optsWrap = document.createElement('div');
+  optsWrap.className = 'options';
+
+  data.opts.forEach((opt, oi)=>{
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.setAttribute('data-choice', oi);
+    btn.setAttribute('aria-pressed', 'false');
+    btn.innerHTML = `<div class="letter">${String.fromCharCode(65+oi)}</div><div class="text">${opt}</div>`;
+    // keyboard focusable
+    btn.addEventListener('click', ()=> selectOption(i, oi));
+    // mark chosen
+    if(state.answers[i] !== null){
+      btn.classList.add('disabled');
+      if(state.answers[i] === data.a && oi === data.a) btn.classList.add('correct');
+      if(state.answers[i] !== data.a && oi === state.answers[i]) btn.classList.add('wrong');
+      if(state.answers[i] !== data.a && oi === data.a) btn.classList.add('correct');
+    }
+    optsWrap.appendChild(btn);
+  });
+
+  questionCard.appendChild(meta);
+  questionCard.appendChild(qtext);
+  questionCard.appendChild(optsWrap);
+
+  // explanation if already answered
+  if(state.answers[i] !== null){
+    const expl = document.createElement('div');
+    expl.className = 'explain';
+    const right = QUIZ[i].a;
+    const isRight = state.answers[i] === right;
+    expl.innerHTML = `<strong>정답: ${String.fromCharCode(65+right)}. ${QUIZ[i].opts[right]}</strong><div style="margin-top:8px;color:var(--muted)">${QUIZ[i].explain}</div>`;
+    questionCard.appendChild(expl);
+  }
+
+  // prev/next button states
+  prevBtn.disabled = i === 0;
+  nextBtn.disabled = i === QUIZ.length - 1;
+
+  // Accessibility focus
+  questionCard.querySelector('.q-text')?.focus?.();
+
+  // update timer element immediately
+  timerEl.textContent = formatTime(state.timeLeft);
+}
+
+/* select an option */
+function selectOption(qIndex, choice){
+  if(state.answers[qIndex] !== null) return;
+  state.answers[qIndex] = choice;
+  const correct = QUIZ[qIndex].a;
+  if(choice === correct){
+    state.score += 1;
+    // small celebration for correct
+    spawnConfetti(8);
+  } else {
+    // slight pulse for wrong (optional)
+    flashWrong();
+  }
+  // auto re-render
+  render();
+  // if finished all questions -> show end
+  if(state.answers.every(a=>a!==null)){
+    setTimeout(showEndScreen, 700);
+  }
+}
+
+/* navigation */
+function goTo(i){
+  state.idx = clamp(i, 0, QUIZ.length-1);
+  render();
+}
+
+prevBtn.addEventListener('click', ()=> {
+  if(state.idx>0) { state.idx--; render(); }
+});
+nextBtn.addEventListener('click', ()=> {
+  if(state.idx<QUIZ.length-1){ state.idx++; render(); }
+});
+restartBtn.addEventListener('click', ()=> {
+  if(confirm('퀴즈를 처음부터 다시 시작할까요? 현재 진행은 초기화됩니다.')) resetAll();
+});
+retakeBtn.addEventListener('click', ()=> {
+  resetAll();
+  endScreen.style.display = 'none';
+});
+reviewBtn.addEventListener('click', ()=> {
+  endScreen.style.display = 'none';
+  // jump to first incorrect or start
+  const firstWrong = state.answers.findIndex((ans, idx) => ans !== QUIZ[idx].a);
+  goTo(firstWrong >= 0 ? firstWrong : 0);
+});
+
+/* timer */
+let timerInterval = null;
+function startTimer(){
+  clearInterval(timerInterval);
+  updateTimerUI();
+  timerInterval = setInterval(()=>{
+    state.timeLeft = Math.max(0, state.timeLeft - 1);
+    updateTimerUI();
+    if(state.timeLeft <= 0){
+      clearInterval(timerInterval);
+      // auto finish: mark unanswered as wrong (null stays null but end quiz)
+      showEndScreen(true);
+    }
+  }, 1000);
+}
+function updateTimerUI(){
+  timerEl.textContent = formatTime(state.timeLeft);
+  // color change when low
+  if(state.timeLeft <= 60) timerEl.style.borderColor = 'rgba(255,122,182,0.9)';
+  else timerEl.style.borderColor = 'transparent';
+}
+
+/* end screen */
+function showEndScreen(timedOut = false){
+  // stop timer
+  clearInterval(timerInterval);
+  endScreen.style.display = 'grid';
+  const correctCount = state.score;
+  endTitle.textContent = timedOut ? '시간 종료!' : '퀴즈 완료!';
+  endText.innerHTML = `정답 <strong>${correctCount}</strong> / ${QUIZ.length} — ${Math.round(correctCount / QUIZ.length * 100)}%`;
+  if(correctCount === QUIZ.length){
+    spawnConfetti(40);
+  }
